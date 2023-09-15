@@ -21,42 +21,73 @@ int check_char(char *str)
 	return (n);
 }
 /**
- * single_string - returns an array of a single string and null
+ * get_string - returns an array of a single string and null
  * @str: string to return
  * @i: number of char in the string
- * @words: pointer to strings
+ * @start: index to start from
  *
  * Return: Array of strings on success, NULL on failure
  */
 
-char **single_string(char *str, int i, char **words)
+char *get_string(char *str, int i, int start)
 {
-	int start = 0, n;
+	int n;
+	char *word;
 
 	while (str[start] == ' ')
-		str[start] += 1;
+		start += 1;
 
 	n = i - start;
-	words[0] = malloc(n + 1);
-	if (!words[0])
+	word = malloc(n + 1);
+	if (!word)
 		return (NULL);
 
-	strncpy(words[0], &str[start], n);
-	words[0][n] = '\0';
-	words[1] = NULL;
+	strncpy(word, &str[start], n);
+	word[n] = '\0';
 
-	return (words);
+	return (word);
 }
 
 /**
- * many_strings - returns a null terminated array of strings
+ * strings - returns a null terminated array of strings
  * @str: string to split up
  * @words: pointer to strings
  *
  * Return: Array of strings or NULL;
  */
 
-char **many_strings(char *str, char **words);
+char **strings(char *str, char **words)
+{
+	int j = 0, i = 0;
+	int start = 0;
+
+	if (str[i] == ' ')
+		i++;
+
+	while (str[i] != '\0')
+	{
+		if (str[i] == ' ' && str[i - 1] != ' ')
+		{
+			words[j] = get_string(str, i, start);
+			j++;
+			start = i;
+		}
+		i++;
+	}
+	if (str[i] == '\0' && str[i - 1] != ' ')
+	{
+		words[j] = get_string(str, i, start);
+		words[j + 1] = NULL;
+
+		return (words);
+	}
+	else
+	{
+		words[j + 1] = NULL;
+
+		return (words);
+	}
+}
 
 /**
  * split_string - splits a string using ' ' as the delimiter.
@@ -95,70 +126,7 @@ char **split_string(char *str)
 	if (!words)
 		return (NULL);
 
-	if (i > 0 && word_count == 0)
-		return (single_string(str, i, words));
-	else
-		return (many_strings(str, words));
-}
-
-/**
- * many_strings - returns a null terminated array of strings
- * @str: string to split up
- * @words: pointer to strings
- *
- * Return: Pointer to array of strings or NULL
- */
-
-char **many_strings(char *str, char **words)
-{
-	int n, j = 0, i = 0;
-	int start = 0;
-
-	if (str[i] == ' ')
-		i++;
-
-	while (str[i] != '\0')
-	{
-		if (str[i] == ' ' && str[i - 1] != ' ')
-		{
-			while (str[start] == ' ')
-				start += 1;
-
-			n = i - start;
-			words[j] = malloc(n + 1);
-			if (!words[j])
-				return (NULL);
-
-			strncpy(words[j], &str[start], n);
-			words[j][n] = '\0';
-			j++;
-			start = i;
-		}
-		i++;
-	}
-	if (str[i] == '\0' && str[i - 1] != ' ')
-	{
-		while (str[start] == ' ')
-			start += 1;
-
-		n = i - start;
-		words[j] = malloc(n + 1);
-		if (!words[j])
-			return (NULL);
-
-		strncpy(words[j], &str[start], n);
-		words[j][n] = '\0';
-		words[j + 1] = NULL;
-
-		return (words);
-	}
-
-	else
-	{
-		words[j + 1] = NULL;
-
-		return (words);
-	}
+	return (strings(str, words));
 }
 
 /**
@@ -170,7 +138,7 @@ char **many_strings(char *str, char **words)
 int main(void)
 {
 	int i = 0;
-	char **str = split_string("   n   ");
+	char **str = split_string("n   ");
 	char **words = split_string("  🙂    Hello World         Split String");
 
 
