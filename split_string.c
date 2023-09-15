@@ -15,7 +15,7 @@ int check_char(char *str)
 
 	for (i = 0; str[i] != '\0'; i++)
 	{
-		if (str[i] + 0 >= 'a' && str[i] + 0 <= 'z')
+		if (str[i] >= 'a' && str[i] <= 'z')
 			n++;
 	}
 	return (n);
@@ -31,18 +31,18 @@ int check_char(char *str)
 
 char **single_string(char *str, int i, char **words)
 {
-	int start = 0;
-	/*char **words;*/
+	int start = 0, n;
 
 	while (str[start] == ' ')
 		str[start] += 1;
 
-	words[0] = malloc(i + 1);
+	n = i - start;
+	words[0] = malloc(n + 1);
 	if (!words[0])
 		return (NULL);
 
-	strncpy(words[0], &str[start], i);
-	words[0][i] = '\0';
+	strncpy(words[0], &str[start], n);
+	words[0][n] = '\0';
 	words[1] = NULL;
 
 	return (words);
@@ -77,14 +77,21 @@ char **split_string(char *str)
 	if (check_char(str) == 0)
 		return (NULL);
 
+	if (str[i] == ' ')
+		i++;
+
 	while (str[i] != '\0')
 	{
-		if (str[i] == ' ' && str[i + 1] != ' ')
+		if (str[i] == ' ' && str[i - 1] != ' ')
 			word_count++;
 		i++;
 	}
 
-	words = malloc((word_count + 2) * sizeof(char *));
+	if (str[i] == '\0' && str[i - 1] == ' ')
+		words = malloc((word_count + 1) * sizeof(char *));
+	else
+		words = malloc((word_count + 2) * sizeof(char *));
+
 	if (!words)
 		return (NULL);
 
@@ -107,6 +114,9 @@ char **many_strings(char *str, char **words)
 	int n, j = 0, i = 0;
 	int start = 0;
 
+	if (str[i] == ' ')
+		i++;
+
 	while (str[i] != '\0')
 	{
 		if (str[i] == ' ' && str[i - 1] != ' ')
@@ -122,23 +132,33 @@ char **many_strings(char *str, char **words)
 			strncpy(words[j], &str[start], n);
 			words[j][n] = '\0';
 			j++;
-			start = i + 1;
+			start = i;
 		}
 		i++;
 	}
-	while (str[start] == ' ')
-		start += 1;
+	if (str[i] == '\0' && str[i - 1] != ' ')
+	{
+		while (str[start] == ' ')
+			start += 1;
 
-	n = i - start;
-	words[j] = malloc(n + 1);
-	if (!words[j])
-		return (NULL);
+		n = i - start;
+		words[j] = malloc(n + 1);
+		if (!words[j])
+			return (NULL);
 
-	strncpy(words[j], &str[start], n);
-	words[j][n] = '\0';
-	words[j + 1] = NULL;
+		strncpy(words[j], &str[start], n);
+		words[j][n] = '\0';
+		words[j + 1] = NULL;
 
-	return (words);
+		return (words);
+	}
+
+	else
+	{
+		words[j + 1] = NULL;
+
+		return (words);
+	}
 }
 
 /**
@@ -150,8 +170,8 @@ char **many_strings(char *str, char **words)
 int main(void)
 {
 	int i = 0;
-	char **str = split_string("      ");
-	char **words = split_string("      Hello World         Split String");
+	char **str = split_string("   n   ");
+	char **words = split_string("  🙂    Hello World         Split String");
 
 
 	if (str)
